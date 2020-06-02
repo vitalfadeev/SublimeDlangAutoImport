@@ -6,17 +6,17 @@ from Default import history_list
 
 
 COMMON_PATHS = {
-    "HashMap": "std::collections::HashMap",
-    "HashSet": "std::collections::HashSet",
+    "to": "std.conv",
 }
 
 
-def find_common_path(symbol):
-    base_path = COMMON_PATHS.get(symbol)
-    if base_path is None:
-        return ["std", "x", symbol]
+def find_common_path( symbol ):
+    base_path = COMMON_PATHS.get( symbol, None )
 
-    return base_path.split("::")
+    if base_path:
+        return base_path
+
+    return "std."
 
 
 def matchiness( a, b ):

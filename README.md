@@ -33,7 +33,7 @@ will be auto added "import ui.istylable : IStylable;" at begin of file. Like thi
 - Scan project files, using ST3 index
 - Grep for "\<Symbol\>"
 - Grep file for "module <module.path.name>". Get "<module.path.name>"
-- Then build line "import \<module.path.name\> : \<Symbol\>;". Inserted in text. At top. After line "module ..." if it exist, else just at top.
+- Build line "import \<module.path.name\> : \<Symbol\>;". Inserted in text. At top. After line "module ..." if it exist, else just at top.
 - Check for "module ... : \<Symbol\>" before insert.
 
 ## Installation
