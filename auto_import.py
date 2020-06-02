@@ -60,8 +60,18 @@ def get_module_name( file_name ):
 
 
 class DlangAutoImportCommand(sublime_plugin.TextCommand):
+    def _check_exists( self, edit, symbol ):
+        # check "import ... : <Symbol> ;"
+        query = "^import .*:.*[ ,;]+{}[ ,;].*".format( symbol )
+
+        use_statements = self.view.find_all( query )
+
+        if len( use_statements ) > 0:
+            return use_statements[ 0 ].b
+
+
     def _inside_import( self, import_path, edit, symbol ):
-        # inside "import ... : ... ;"
+        # inside "import ... : <Symbol> ;"
         query = "^import {}[ ]*:[ ]*[.]+;$".format( import_path )
 
         use_statements = self.view.find_all( query )
@@ -131,7 +141,20 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
         history_list.get_jump_history_for_view(self.view).push_selection(self.view)
         symbol = self.view.substr(self.view.word(self.view.sel()[0]))
 
-        #
+        # Check
+        exist_point = self._check_exists( edit, symbol )
+        if exist_point:
+            sel_i = exist_point
+            sel = self.view.sel()
+            sel.clear()
+            sel.add( sublime.Region( sel_i, sel_i ) )
+
+            # scroll t show it
+            self.view.show( sel_i )
+
+            return
+
+        # Lookup for <Symbol>
         locs = self.view.window().lookup_symbol_in_index( symbol )
         locs = [ l for l in locs if l[ 1 ].endswith(".d") or l[ 1 ].endswith(".di") ]
 
@@ -143,7 +166,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
         else:
             import_path = find_common_path( symbol )
 
-        #
+        # Get insert point
         if import_path:
             inserted = self._inside_import( import_path, edit, symbol )
         
@@ -153,7 +176,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             if inserted is None:
                 inserted = self._afrer_module( import_path, edit, symbol )
 
-            # Select just after the end of the statement
+            # Select inserted
             if inserted is not None:
                 sel_i = inserted
                 sel = self.view.sel()
