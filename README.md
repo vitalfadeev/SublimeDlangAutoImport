@@ -31,7 +31,7 @@ will be auto added "import ui.istylable : IStylable;" at begin of file. Like thi
 
 ## Algo
 - Scan project files, using ST3 index
-- Grep for "<Symbol>"
+- Grep for "\<Symbol\>"
 - Get founded file for "module <module.path.name>". Get "<module.path.name>"
 - Then build line "import <module.path.name> : <Symbol>;". Inserted in text. At top. After line "module ..." if it exist, else just at top.
 - Check for "module ... : <Symbol>" before insert.
