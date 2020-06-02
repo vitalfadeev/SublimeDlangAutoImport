@@ -137,11 +137,20 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             return insert_point + len( new_import ) - 1
 
 
+    def _at_top( self, import_path, edit, symbol ):
+        # at top in file
+        new_import = "import {} : {};\n".format( import_path, symbol )
+
+        self.view.insert( edit, 0, new_import )
+
+        return len( new_import ) - 1
+
+
     def run(self, edit, **args):
         history_list.get_jump_history_for_view(self.view).push_selection(self.view)
         symbol = self.view.substr(self.view.word(self.view.sel()[0]))
 
-        # Check
+        # Check 
         exist_point = self._check_exists( edit, symbol )
         if exist_point:
             sel_i = exist_point
@@ -176,6 +185,9 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             if inserted is None:
                 inserted = self._afrer_module( import_path, edit, symbol )
 
+            if inserted is None:
+                inserted = self._at_top( import_path, edit, symbol )
+
             # Select inserted
             if inserted is not None:
                 sel_i = inserted
@@ -183,5 +195,5 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
                 sel.clear()
                 sel.add( sublime.Region( sel_i, sel_i ) )
 
-                # scroll t show it
+                # scroll. show
                 self.view.show( sel_i )
