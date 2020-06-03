@@ -51,5 +51,5 @@ Then add a keybinding of your choice for the `dlang_auto_import` command, by add
 { "keys": ["ctrl+shift+a"], "command": "dlang_auto_import" },
 ```
 
-You can also try it out immediately by choosing "Dlang: import ..." from the context menu or command pallete.
+You can also try it out immediately by choosing "D: import ..." from the context menu or command pallete.
 
