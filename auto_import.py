@@ -53,7 +53,7 @@ def get_module_name( file_name ):
             if line.startswith( "module " ):
                 module_name = line
                 module_name = line[ len( "module " ): ]
-                module_name = module_name.rstrip( "\n" ).rstrip( " " ).rstrip( ";" ).rstrip( " " )
+                module_name = module_name.rstrip( "\n" ).strip( " " ).rstrip( ";" ).rstrip( " " )
                 return module_name
 
     return get_module_name_from_file_name( file_name )
