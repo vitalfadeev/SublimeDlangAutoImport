@@ -1,7 +1,7 @@
 [
     {
         "caption": "D: import ...",
-        "mnemonic": "a",
+        "mnemonic": "i",
         "command": "dlang_auto_import",
         // the below doesn't actually do anything sadly, hopefully this will get added at some point
         "context": [
