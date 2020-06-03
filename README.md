@@ -36,7 +36,7 @@ will be auto added "import ui.istylable : IStylable;" at begin of file. Like thi
 - Get module.name
 - Check for existing "module ... : Symbol"
 - Build line "import module_name : Symbol;"
-- Inserted in text. 
+- Insert in text. 
 - - after last "import ..."
 - - after "module ..."
 - - at top
