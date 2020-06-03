@@ -7,10 +7,11 @@ from Default import history_list
 
 COMMON_PATHS = {
     "to": "std.conv",
+    "writeln": "std.stdio",
 }
 
 
-def find_common_path( symbol ):
+def _find_common_path( symbol ):
     base_path = COMMON_PATHS.get( symbol, None )
 
     if base_path:
@@ -19,18 +20,13 @@ def find_common_path( symbol ):
     return "std."
 
 
-def matchiness( a, b ):
-    m = 0
-    for sa, sb in zip(a,b):
-        if sa != sb:
-            return m
-        m += 1
-    return m
-
-
-def get_module_name_from_abs_path( abs_path ):
+def _get_module_name_from_abs_path( abs_path ):
     import os.path
 
+    # remove ext
+    abs_path, ext = os.path.splitext( abs_path )
+
+    # trim.  project/source/ui/event to ui/event
     folders = []
     folder_path, folder = os.path.split( abs_path )
 
@@ -38,13 +34,13 @@ def get_module_name_from_abs_path( abs_path ):
         if folder == "source" or folder == "src":
             break
 
-        folders.insert(  folder )
+        folders.insert( 0, folder )
         folder_path, folder = os.path.split( folder_path )
 
-    return folders.join( "." )
+    return ".".join( folders )
 
 
-def get_module_name( file_name ):
+def _get_module_name( file_name ):
     with open( file_name ) as f:
         for i, line in enumerate( f ):
             if i > 10:
@@ -56,12 +52,43 @@ def get_module_name( file_name ):
                 module_name = module_name.rstrip( "\n" ).strip( " " ).rstrip( ";" ).rstrip( " " )
                 return module_name
 
-    return get_module_name_from_file_name( file_name )
+    return  _get_module_name_from_abs_path( file_name )
 
 
 class DlangAutoImportCommand(sublime_plugin.TextCommand):
     def is_visible( self ):
         return "/D/" in self.view.settings().get( "syntax" )
+
+
+    def _lookup_symbol( self, edit, symbol ):
+        locs = self.view.window().lookup_symbol_in_index( symbol )
+        locs = [ l for l in locs if l[ 1 ].endswith(".d") or l[ 1 ].endswith(".di") ]
+
+        if len( locs ) == 1:
+            abs_path = locs[ 0 ][ 0 ]
+            import_path = _get_module_name( abs_path )
+            return import_path
+        
+        elif len( locs ) > 1:
+            self._give_chioce_location( edit, locs, symbol )
+
+        else:
+            import_path = _find_common_path( symbol )
+            return import_path
+
+
+    def _give_chioce_location( self, edit, locs, symbol ):
+
+        items = [ l[ 1 ]  for l in locs ]
+
+        def on_done( item_index ):
+            if item_index != -1:
+                abs_path = locs[ item_index ][ 0 ]
+                import_path = _get_module_name( abs_path )
+                self._insert( edit, import_path, symbol )
+
+        self.view.show_popup_menu( items, on_done, 0 )
+
 
 
     def _check_exists( self, edit, symbol ):
@@ -74,7 +101,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             return use_statements[ 0 ].b
 
 
-    def _inside_import( self, import_path, edit, symbol ):
+    def _inside_import( self, edit, import_path, symbol ):
         # inside "import ... : <Symbol> ;"
         query = "^import {}[ ]*:[ ]*[.]+;$".format( import_path )
 
@@ -89,7 +116,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             return insert_point + len( new_import ) - 1
 
 
-    def _afrer_imports( self, import_path, edit, symbol ):
+    def _afrer_imports( self, edit, import_path, symbol ):
         # after "import ... ;"
         query = "^import .+"
         use_statements = self.view.find_all( query )
@@ -124,7 +151,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             return insert_point + len( new_import ) - 1
 
 
-    def _afrer_module( self, import_path, edit, symbol ):
+    def _afrer_module( self, edit, import_path, symbol ):
         # after "module ..."
         query = "^module .+;$"
         use_statements = self.view.find_all(query)
@@ -141,13 +168,39 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             return insert_point + len( new_import ) - 1
 
 
-    def _at_top( self, import_path, edit, symbol ):
+    def _at_top( self, edit, import_path, symbol ):
         # at top in file
         new_import = "import {} : {};\n".format( import_path, symbol )
 
         self.view.insert( edit, 0, new_import )
 
         return len( new_import ) - 1
+
+
+    def _select( self, edit, sel_i ):
+        sel = self.view.sel()
+        sel.clear()
+        sel.add( sublime.Region( sel_i, sel_i ) )
+
+        # scroll t show it
+        self.view.show( sel_i )
+
+
+    def _insert( self, edit, import_path, symbol ):
+        inserted = self._inside_import( edit, import_path, symbol )
+    
+        if inserted is None:
+            inserted = self._afrer_imports( edit, import_path, symbol )
+
+        if inserted is None:
+            inserted = self._afrer_module( edit, import_path, symbol )
+
+        if inserted is None:
+            inserted = self._at_top( edit, import_path, symbol )
+
+        # Select inserted
+        if inserted is not None:
+            self._select( edit, inserted )
 
 
     def run(self, edit, **args):
@@ -157,47 +210,12 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
         # Check 
         exist_point = self._check_exists( edit, symbol )
         if exist_point:
-            sel_i = exist_point
-            sel = self.view.sel()
-            sel.clear()
-            sel.add( sublime.Region( sel_i, sel_i ) )
-
-            # scroll t show it
-            self.view.show( sel_i )
-
+            self._select( edit, exist_point )
             return
 
         # Lookup for <Symbol>
-        locs = self.view.window().lookup_symbol_in_index( symbol )
-        locs = [ l for l in locs if l[ 1 ].endswith(".d") or l[ 1 ].endswith(".di") ]
-
-        if len( locs ) > 0:
-            abs_path = locs[ 0 ][ 0 ]
-            module_name = get_module_name( abs_path )
-            import_path = module_name
-
-        else:
-            import_path = find_common_path( symbol )
+        import_path = self._lookup_symbol( edit, symbol )
 
         # Get insert point
         if import_path:
-            inserted = self._inside_import( import_path, edit, symbol )
-        
-            if inserted is None:
-                inserted = self._afrer_imports( import_path, edit, symbol )
-
-            if inserted is None:
-                inserted = self._afrer_module( import_path, edit, symbol )
-
-            if inserted is None:
-                inserted = self._at_top( import_path, edit, symbol )
-
-            # Select inserted
-            if inserted is not None:
-                sel_i = inserted
-                sel = self.view.sel()
-                sel.clear()
-                sel.add( sublime.Region( sel_i, sel_i ) )
-
-                # scroll. show
-                self.view.show( sel_i )
+            self._insert( edit, import_path, symbol )
