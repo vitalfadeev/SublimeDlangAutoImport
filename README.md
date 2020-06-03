@@ -31,16 +31,21 @@ will be auto added "import ui.istylable : IStylable;" at begin of file. Like thi
 
 ## Algo
 - Scan project files, using ST3 index
-- Grep for "\<Symbol\>"
-- Grep file for "module <module.path.name>". Get "<module.path.name>"
-- Build line "import \<module.path.name\> : \<Symbol\>;". Inserted in text. At top. After line "module ..." if it exist, else just at top.
-- Check for "module ... : \<Symbol\>" before insert.
+- Grep for Symbol
+- Grep file for "module ..."
+- Get module.name
+- Check for existing "module ... : Symbol"
+- Build line "import module_name : Symbol;"
+- Inserted in text. 
+- - after last "import ..."
+- - after "module ..."
+- - at top
 
 ## Installation
 
 Install [DlangAutoImport](https://packagecontrol.io/packages/DlangAutoImport) from Package Control.
 
-Then add a keybinding of your choice for the `lang_auto_import` command, by adding a line like this to your keybindings file:
+Then add a keybinding of your choice for the `dlang_auto_import` command, by adding a line like this to your keybindings file:
 
 ```json
 { "keys": ["ctrl+shift+a"], "command": "dlang_auto_import" },

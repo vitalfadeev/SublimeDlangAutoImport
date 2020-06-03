@@ -60,6 +60,10 @@ def get_module_name( file_name ):
 
 
 class DlangAutoImportCommand(sublime_plugin.TextCommand):
+    def is_visible( self ):
+        return "/D/" in self.view.settings().get( "syntax" )
+
+
     def _check_exists( self, edit, symbol ):
         # check "import ... : <Symbol> ;"
         query = "^import .*:.*[ ,;]+{}[ ,;].*".format( symbol )
