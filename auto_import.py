@@ -63,7 +63,21 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
     def _lookup_symbol( self, edit, symbol ):
         locs = self.view.window().lookup_symbol_in_index( symbol )
         locs = [ l for l in locs if l[ 1 ].endswith(".d") or l[ 1 ].endswith(".di") ]
+        
+        # Unique
+        uniqued_locs = []
+        for l in locs:
+            unique = True
+            for ul in uniqued_locs:
+                if ul[ 0 ] == l[ 0 ]: # test abs path
+                    unique = False
+                    break
+            if unique:
+                uniqued_locs.append( l )
 
+        locs = uniqued_locs
+
+        # Get
         if len( locs ) == 1:
             abs_path = locs[ 0 ][ 0 ]
             import_path = _get_module_name( abs_path )
@@ -88,6 +102,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
                 self._insert( edit, import_path, symbol )
 
         self.view.show_popup_menu( items, on_done, 0 )
+        # self.view.window().show_quick_panel( items, on_done, 0 )
 
 
 
