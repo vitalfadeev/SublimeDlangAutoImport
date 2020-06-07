@@ -33,6 +33,7 @@ COMMON_PATHS = {
     "until"      : "std.algorithm.searching",
     "count"      : "std.algorithm.searching",
     "countUntil" : "std.algorithm.searching",
+    "GC"         : "core.memory",
 }
 
 
