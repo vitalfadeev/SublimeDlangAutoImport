@@ -83,8 +83,7 @@ def _get_module_name( file_name ):
 
 class DlangAutoImportCommand(sublime_plugin.TextCommand):
     def is_visible( self ):
-        return "/D/" in self.view.settings().get( "syntax" )
-        # view.match_selector( 0, "source.d" )
+        return self.view.match_selector( 0, "source.d" )
 
 
     def _lookup_symbol( self, edit, symbol ):
