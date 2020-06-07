@@ -81,7 +81,13 @@ def _get_module_name( file_name ):
     return  _get_module_name_from_abs_path( file_name )
 
 
-class DlangAutoImportCommand(sublime_plugin.TextCommand):
+class DlangAutoImportReplaceTextCommand( sublime_plugin.TextCommand ):
+    def run( self, edit, region, text ):
+        region = sublime.Region( *region )
+        self.view.replace( edit, region, text )
+
+
+class DlangAutoImportCommand( sublime_plugin.TextCommand ):
     def is_visible( self ):
         return self.view.match_selector( 0, "source.d" )
 
@@ -110,14 +116,14 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             return import_path
         
         elif len( locs ) > 1:
-            self._give_chioce_location( edit, locs, symbol )
+            self._select_location_via_menu( edit, locs, symbol )
 
         else:
             import_path = _find_common_path( symbol )
             return import_path
 
 
-    def _give_chioce_location( self, edit, locs, symbol ):
+    def _select_location_via_menu( self, edit, locs, symbol ):
 
         items = [ l[ 1 ]  for l in locs ]
 
@@ -125,10 +131,11 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             if item_index != -1:
                 abs_path = locs[ item_index ][ 0 ]
                 import_path = _get_module_name( abs_path )
+
                 self._insert( edit, import_path, symbol )
 
-        self.view.show_popup_menu( items, on_done, 0 )
-        # self.view.window().show_quick_panel( items, on_done, 0 )
+        # self.view.show_popup_menu( items, on_done, 0 )
+        self.view.window().show_quick_panel( items, on_done, 0 )
 
 
 
@@ -152,7 +159,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             insert_point = use_statements[ 0 ].b - 2
             new_import = ", {}".format( symbol )
 
-            self.view.insert( edit, insert_point, new_import )
+            self._safe_insert( insert_point, new_import )
 
             return insert_point + len( new_import ) - 1
 
@@ -187,7 +194,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
 
             new_import = "import {} : {};\n".format( import_path, symbol )
 
-            self.view.insert( edit, insert_point, new_import )
+            self._safe_insert( insert_point, new_import )
 
             return insert_point + len( new_import ) - 1
 
@@ -204,7 +211,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
             insert_point = self.view.text_point( r + 1, c )
             new_import = "\nimport {} : {};\n".format( import_path, symbol )
 
-            self.view.insert( edit, insert_point, new_import )
+            self._safe_insert( insert_point, new_import )
 
             return insert_point + len( new_import ) - 1
 
@@ -213,7 +220,7 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
         # at top in file
         new_import = "import {} : {};\n".format( import_path, symbol )
 
-        self.view.insert( edit, 0, new_import )
+        self._safe_insert( 0, new_import )
 
         return len( new_import ) - 1
 
@@ -225,6 +232,10 @@ class DlangAutoImportCommand(sublime_plugin.TextCommand):
 
         # scroll t show it
         self.view.show( sel_i )
+
+
+    def _safe_insert( self, insert_point, new_import ):
+        self.view.run_command( 'dlang_auto_import_replace_text', { "region": [insert_point, insert_point], "text": new_import } )
 
 
     def _insert( self, edit, import_path, symbol ):
