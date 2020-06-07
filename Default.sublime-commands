@@ -1,6 +1,6 @@
 [
     {
-        "caption": "Dlang: Auto-Import",
+        "caption": "D: import ...",
         "command": "dlang_auto_import",
         // the below doesn't actually do anything sadly, hopefully this will get added at some point
         "context": [

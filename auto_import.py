@@ -6,8 +6,33 @@ from Default import history_list
 
 
 COMMON_PATHS = {
-    "to": "std.conv",
-    "writeln": "std.stdio",
+    "to"         : "std.conv",
+    "writeln"    : "std.stdio",
+    "writefln"   : "std.stdio",
+    "format"     : "std.format",
+    "rint"       : "std.math",
+    "cos"        : "std.math",
+    "sin"        : "std.math",
+    "tan"        : "std.math",
+    "PI"         : "std.math",
+    "PI_2"       : "std.math",
+    "abs"        : "std.math",
+    "fabs"       : "std.math",
+    "sqrt"       : "std.math",
+    "ceil"       : "std.math",
+    "floor"      : "std.math",
+    "round"      : "std.math",
+    "trunc"      : "std.math",
+    "lrint"      : "std.math",
+    "nearbyint"  : "std.math",
+    "rndtol"     : "std.math",
+    "quantize"   : "std.math",
+    "isNaN"      : "std.math",
+    "find"       : "std.algorithm.searching",
+    "canFind"    : "std.algorithm.searching",
+    "until"      : "std.algorithm.searching",
+    "count"      : "std.algorithm.searching",
+    "countUntil" : "std.algorithm.searching",
 }
 
 
