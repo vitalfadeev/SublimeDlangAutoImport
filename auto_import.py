@@ -6,34 +6,35 @@ from Default import history_list
 
 
 COMMON_PATHS = {
-    "to"         : "std.conv",
-    "writeln"    : "std.stdio",
-    "writefln"   : "std.stdio",
-    "format"     : "std.format",
-    "rint"       : "std.math",
-    "cos"        : "std.math",
-    "sin"        : "std.math",
-    "tan"        : "std.math",
-    "PI"         : "std.math",
-    "PI_2"       : "std.math",
-    "abs"        : "std.math",
-    "fabs"       : "std.math",
-    "sqrt"       : "std.math",
-    "ceil"       : "std.math",
-    "floor"      : "std.math",
-    "round"      : "std.math",
-    "trunc"      : "std.math",
-    "lrint"      : "std.math",
-    "nearbyint"  : "std.math",
-    "rndtol"     : "std.math",
-    "quantize"   : "std.math",
-    "isNaN"      : "std.math",
-    "find"       : "std.algorithm.searching",
-    "canFind"    : "std.algorithm.searching",
-    "until"      : "std.algorithm.searching",
-    "count"      : "std.algorithm.searching",
-    "countUntil" : "std.algorithm.searching",
-    "GC"         : "core.memory",
+    "to"          : "std.conv",
+    "writeln"     : "std.stdio",
+    "writefln"    : "std.stdio",
+    "format"      : "std.format",
+    "rint"        : "std.math",
+    "cos"         : "std.math",
+    "sin"         : "std.math",
+    "tan"         : "std.math",
+    "PI"          : "std.math",
+    "PI_2"        : "std.math",
+    "abs"         : "std.math",
+    "fabs"        : "std.math",
+    "sqrt"        : "std.math",
+    "ceil"        : "std.math",
+    "floor"       : "std.math",
+    "round"       : "std.math",
+    "trunc"       : "std.math",
+    "lrint"       : "std.math",
+    "nearbyint"   : "std.math",
+    "rndtol"      : "std.math",
+    "quantize"    : "std.math",
+    "isNaN"       : "std.math",
+    "find"        : "std.algorithm.searching",
+    "canFind"     : "std.algorithm.searching",
+    "until"       : "std.algorithm.searching",
+    "count"       : "std.algorithm.searching",
+    "countUntil"  : "std.algorithm.searching",
+    "GC"          : "core.memory",
+    "thisExePath" : "std.file",
 }
 
 
@@ -126,16 +127,35 @@ class DlangAutoImportCommand( sublime_plugin.TextCommand ):
     def _select_location_via_menu( self, edit, locs, symbol ):
 
         items = [ l[ 1 ]  for l in locs ]
+        self._preview = None
 
         def on_done( item_index ):
+            print( self._preview )
+            if self._preview is not None:
+                self.view.window().focus_view( self._preview ) 
+                self.view.window().run_command( "close_file" )
+                self.view.window().focus_view( self.view )
+
             if item_index != -1:
                 abs_path = locs[ item_index ][ 0 ]
                 import_path = _get_module_name( abs_path )
 
                 self._insert( edit, import_path, symbol )
 
-        # self.view.show_popup_menu( items, on_done, 0 )
-        self.view.window().show_quick_panel( items, on_done, 0 )
+        def on_highlighted( item_index ):
+            item = locs[ item_index ]
+            abs_path = item[ 0 ]
+            location = item[ 2 ]
+            r = location[ 0 ]
+            c = location[ 1 ]
+            abs_path_encoded = "{}:{}:{}".format( abs_path, r, c )
+            self._preview = self.view.window().open_file( abs_path_encoded, sublime.ENCODED_POSITION | sublime.TRANSIENT )
+            self._preview.set_scratch( True )
+
+
+        self.view.show_popup_menu( items, on_done, 0 )
+        # self.view.window().show_quick_panel( items, on_done, 0, 0, on_highlighted )
+        # self.view.window().show_quick_panel( items, on_done, 0, 0 )
 
 
 
