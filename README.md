@@ -48,7 +48,7 @@ Install [DlangAutoImport](https://packagecontrol.io/packages/DlangAutoImport) fr
 Then add a keybinding of your choice for the `dlang_auto_import` command, by adding a line like this to your keybindings file:
 
 ```json
-{ "keys": ["ctrl+shift+a"], "command": "dlang_auto_import" },
+{ "keys": ["alt+a"], "command": "dlang_auto_import" },
 ```
 
 You can also try it out immediately by choosing "D: import ..." from the context menu or command pallete.
