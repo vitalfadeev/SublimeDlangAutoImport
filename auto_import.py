@@ -58,7 +58,7 @@ def _get_module_name_from_abs_path( abs_path ):
     folder_path, folder = os.path.split( abs_path )
 
     while ( folder_path and folder ):
-        if folder == "source" or folder == "src":
+        if folder == "source" or folder == "src" or folder == "druntime" or folder == "phobos":
             break
 
         folders.insert( 0, folder )
@@ -70,7 +70,7 @@ def _get_module_name_from_abs_path( abs_path ):
 def _get_module_name( file_name ):
     with open( file_name ) as f:
         for i, line in enumerate( f ):
-            if i > 10:
+            if i > 1000:
                 break
 
             if line.startswith( "module " ):
