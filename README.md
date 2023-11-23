@@ -1,6 +1,6 @@
-# Sublime 3 Dlang Auto-Import
+# Sublime 3/4 Dlang Auto-Import
 
-Sublime 3 D AutoImport plugin. Add "import ...." for symbol.
+Sublime 3/4 D AutoImport plugin. Add "import ...." for symbol.
 It provides the `dlang_auto_import` command.
 
 ## Demo
