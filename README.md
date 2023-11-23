@@ -53,3 +53,29 @@ Then add a keybinding of your choice for the `dlang_auto_import` command, by add
 
 You can also try it out immediately by choosing "D: import ..." from the context menu or command pallete.
 
+## Hint
+
+For auto-comlition Phobos/core/sys/std D keywords (Linux):
+
+1. Menu: `Project / Edit Project`
+
+2. edit
+
+```json
+{
+    "folders":
+    [
+        {
+            "path": "."
+        },
+        {
+            "path": "/usr/include/dmd/druntime",
+            "file_include_patterns": ["*.d"]
+        },
+        {
+            "path": "/usr/include/dmd/phobos",
+            "file_include_patterns": ["*.d"]
+        }
+    ]
+}
+```
