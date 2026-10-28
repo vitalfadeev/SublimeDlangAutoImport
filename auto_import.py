@@ -171,7 +171,7 @@ class DlangAutoImportCommand( sublime_plugin.TextCommand ):
 
     def _inside_import( self, edit, import_path, symbol ):
         # inside "import ... : <Symbol> ;"
-        query = "^import {}[ ]*:[ ]*[.]+;$".format( import_path )
+        query = "^import {}[ ]*:[ ]*[.+]+;$".format( re.escape(import_path) )
 
         use_statements = self.view.find_all( query )
 
